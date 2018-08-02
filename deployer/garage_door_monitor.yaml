@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  GarageDoorMonitorRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+              - "iot.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: 'GarageDoorMonitorPolicy'
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "cloudwatch:PutMetricData"
+
+  GarageDoorMonitorIoTPolicy:
+    Type: AWS::IoT::Policy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        -
+          Effect: "Allow"
+          Action:
+            - "iot:Connect"
+            - "iot:Subscribe"
+            - "iot:Publish"
+            - "iot:Receive"
+            - "cloudwatch:PutMetricData"
+          Resource:
+            - "*"
+
+  GarageDoorMonitorOpenRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      TopicRulePayload:
+        Description: 'Garage door monitor reports magnetic reed switch is OPEN (magnetic field not present)'
+        Sql: >-
+          SELECT status FROM 'home/garage/garageDoorSensor' WHERE status = 0
+        RuleDisabled: 'false'
+        Actions:
+          -
+            CloudwatchMetric:
+              MetricName: GarageDoor
+              MetricNamespace: Garage
+              # TODO not sure if 'status' is a valid unit
+              MetricUnit: Status
+              # this depends on how the sensor is actually installed
+              MetricValue: '1'
+              RoleArn:
+                Fn::GetAtt:
+                  - "GarageDoorMonitorRole"
+                  - "Arn"
+  GarageDoorMonitorCloseRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      TopicRulePayload:
+        Description: 'Garage door monitor reports magnetic reed switch is CLOSE (magnetic field present)'
+        Sql: >-
+          SELECT status FROM 'home/garage/garageDoorSensor' WHERE status = 1
+        RuleDisabled: 'false'
+        Actions:
+          -
+            CloudwatchMetric:
+              MetricName: GarageDoor
+              MetricNamespace: Garage
+              MetricUnit: Status
+              # this depends on how the sensor is actually installed
+              MetricValue: '0'
+              RoleArn:
+                Fn::GetAtt:
+                - "GarageDoorMonitorRole"
+                - "Arn"
+Outputs:
+  GarageDoorMonitorOpenRule:
+    Description: 'Rule triggered when garage door monitor reports magnetic reed switch is OPEN'
+    Value: !Ref GarageDoorMonitorOpenRule
+  GarageDoorMonitorCloseRule:
+    Description: 'Rule triggered when garage door monitor reports magnetic reed switch is CLOSE'
+    Value: !Ref GarageDoorMonitorCloseRule
