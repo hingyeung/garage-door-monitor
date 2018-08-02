@@ -83,6 +83,19 @@ Resources:
                 Fn::GetAtt:
                 - "GarageDoorMonitorRole"
                 - "Arn"
+  GarageDoorOpenedFor10MinsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmDescription: 'Garage door has been opened for 10 mins'
+      MetricName: 'GarageDoorStatus'
+      Namespace: 'Garage'
+      Statistic: 'Average'
+      Period: 60
+      EvaluationPeriods: 10
+      Threshold: 1.0
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold'
+      TreatMissingData: 'missing'
 Outputs:
   GarageDoorMonitorOpenRule:
     Description: 'Rule triggered when garage door monitor reports magnetic reed switch is OPEN'
