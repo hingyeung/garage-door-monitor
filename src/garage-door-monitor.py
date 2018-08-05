@@ -10,13 +10,16 @@ import json
 DOOR_PIN = 24
 
 def setupLogger():
-    logger = logging.getLogger("AWSIoTPythonSDK.core")
-    logger.setLevel(logging.DEBUG)
+    awsIoTLogger = logging.getLogger("AWSIoTPythonSDK.core")
+    awsIoTLogger.setLevel(logging.DEBUG)
     streamHandler = logging.StreamHandler()
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     streamHandler.setFormatter(formatter)
-    logger.addHandler(streamHandler)
-    return logger
+    awsIoTLogger.addHandler(streamHandler)
+    gdmLogger = logging.getLogger(__name__)
+    gdmLogger.setLevel(logging.DEBUG)
+    gdmLogger.addHandler(streamHandler)
+    return gdmLogger
 
 def parseArgs():
     # Read in command-line parameters
@@ -68,7 +71,7 @@ def setupDoorSensor():
 (host, port, rootCAPath, certificatePath, privateKeyPath, clientId, topic) = parseArgs()
 
 # Configure logging
-setupLogger()
+myLogger = setupLogger()
 
 # create AWS IoT MQTT client
 awsIoTMQTTClient = createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId)
@@ -76,11 +79,12 @@ awsIoTMQTTClient = createAWSIoTMQTTClient(host, port, rootCAPath, certificatePat
 setupDoorSensor()
 while True:
     message = {}
-    if io.input(door_pin):
-        message['status'] = 1
-        print("SWITCH CLOSE")
-    else:
+    if io.input(DOOR_PIN):
         message['status'] = 0
-        print("SWITCH OPEN")
+        myLogger.info("SWITCH OPEN")
+    else:
+        message['status'] = 1
+        myLogger.info("SWITCH CLOSE")
+
     awsIoTMQTTClient.publish(topic, json.dumps(message), 0)
     time.sleep(60)
