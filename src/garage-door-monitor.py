@@ -7,6 +7,8 @@ import logging
 import argparse
 import json
 
+DOOR_PIN = 24
+
 def setupLogger():
     logger = logging.getLogger("AWSIoTPythonSDK.core")
     logger.setLevel(logging.DEBUG)
@@ -57,6 +59,11 @@ def createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPa
     awsIoTMQTTClient.connect()
     return awsIoTMQTTClient
 
+
+def setupDoorSensor():
+    io.setmode(io.BCM)
+    io.setup(DOOR_PIN, io.IN, pull_up_down=io.PUD_UP)
+
 # parse command-line args
 (host, port, rootCAPath, certificatePath, privateKeyPath, clientId, topic) = parseArgs()
 
@@ -66,11 +73,7 @@ setupLogger()
 # create AWS IoT MQTT client
 awsIoTMQTTClient = createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId)
 
-
-io.setmode(io.BCM)
-door_pin = 24
-io.setup(door_pin, io.IN, pull_up_down=io.PUD_UP)
-
+setupDoorSensor()
 while True:
     message = {}
     if io.input(door_pin):
@@ -80,4 +83,4 @@ while True:
         message['status'] = 0
         print("SWITCH OPEN")
     awsIoTMQTTClient.publish(topic, json.dumps(message), 0)
-    time.sleep(5)
+    time.sleep(60)

@@ -53,10 +53,9 @@ Resources:
         Actions:
           -
             CloudwatchMetric:
-              MetricName: GarageDoor
+              MetricName: GarageDoorStatus
               MetricNamespace: Garage
-              # TODO not sure if 'status' is a valid unit
-              MetricUnit: Status
+              MetricUnit: None
               # this depends on how the sensor is actually installed
               MetricValue: '1'
               RoleArn:
@@ -74,9 +73,9 @@ Resources:
         Actions:
           -
             CloudwatchMetric:
-              MetricName: GarageDoor
+              MetricName: GarageDoorStatus
               MetricNamespace: Garage
-              MetricUnit: Status
+              MetricUnit: None
               # this depends on how the sensor is actually installed
               MetricValue: '0'
               RoleArn:
