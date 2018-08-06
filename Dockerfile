@@ -2,9 +2,8 @@ FROM arm32v6/python:2-alpine3.6
 
 WORKDIR /usr/app/garage-door-monitor
 
-RUN apk update
-RUN apk add --update python-dev
-RUN apk add --update build-base
+RUN apk update && \
+  apk add --update build-base python-dev
 
 RUN pip install --upgrade pip
 
@@ -14,4 +13,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./src/garage-door-monitor.py ./
 
+ENTRYPOINT ["python", "./garage-door-monitor.py"]
 CMD ["-e", "endpoint", "-r", "aws_root_cert", "-c", "device_cert", "-k", "device_private_key"]
