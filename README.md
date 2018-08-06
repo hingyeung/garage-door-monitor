@@ -1,8 +1,4 @@
-# Setup
-1. Install the Python Development toolkit  
-`sudo apt-get install python-dev`
-1. Install Rpi.GPIO  
-`sudo apt-get install python-rpi.gpio`
+ # Development with `virtualenv`
 1. Make python virtualenv for this project
     1. `mkvirtualenv garage-door-monitor`
     1. `workon garage-door-monitor`
@@ -15,3 +11,11 @@
 `deactivate`
 1. To remove virtualenv for this project  
 `rmvirtualenv garage-door-monitor`
+
+# Setup on Raspberry Pi
+1. Install Docker  
+`> curl -sSL https://get.docker.com | sh`  
+`> sudo systemctl enable docker`  
+`> sudo systemctl start docker`  
+`> sudo usermod -aG docker pi`  
+`> docker --version` 
