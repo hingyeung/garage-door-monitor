@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 # run this script run /etc/rc.local
 
 ENDPOINT=$1
@@ -7,11 +8,30 @@ DEVICE_CERT=$3
 DEVICE_PRIVATE_KEY=$4
 CERTS_DIR=$5
 
-docker run -it --rm --cap-add SYS_RAWIO --device /dev/mem \
-  --name garage-door-monitor \
-  -v ${CERTS_DIR}:/certs garage-door-monitor \
+PROJECT_DIR=garage-door-monitor
+DOCKER_IMAGE=garage-door-monitor
+
+echo "Checking if ${PROJECT_DIR} exists..."
+if [ ! -d "${HOME}/${PROJECT_DIR}" ]
+then
+  echo "${PROJECT_DIR} does not exist. Cloning..."
+  git clone https://github.com/hingyeung/garage-door-monitor.git
+  cd ${PROJECT_DIR}
+else
+  echo "${PROJECT_DIR} exists, updating..."
+  cd ${PROJECT_DIR}
+  git pull
+fi
+
+echo "Building Docker image ${DOCKER_IMAGE}"
+docker build -t ${DOCKER_IMAGE} .
+
+echo "Running Docker image ${DOCKER_IMAGE}"
+# https://bit.ly/2OiWBtR
+docker run -td --rm --cap-add SYS_RAWIO --device /dev/mem \
+  --name ${DOCKER_IMAGE} \
+  -v ${CERTS_DIR}:/certs ${DOCKER_IMAGE} \
   -e ${ENDPOINT} \
   -r /certs/${AWS_ROOT_CERT} \
   -c /certs/${DEVICE_CERT} \
-  -k /certs/${DEVICE_PRIVATE_KEY} \
-  > /tmp/bootstrap.log
+  -k /certs/${DEVICE_PRIVATE_KEY}
