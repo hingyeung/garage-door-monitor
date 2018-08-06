@@ -6,19 +6,20 @@ import RPi.GPIO as io
 import logging
 import argparse
 import json
+from logging.handlers import RotatingFileHandler
 
 DOOR_PIN = 24
 
 def setupLogger():
     awsIoTLogger = logging.getLogger("AWSIoTPythonSDK.core")
     awsIoTLogger.setLevel(logging.DEBUG)
-    streamHandler = logging.StreamHandler()
+    loggingHandler = RotatingFileHandler('/tmp/garage-door-monitor.log', maxBytes=100000, backupCount=5)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    streamHandler.setFormatter(formatter)
-    awsIoTLogger.addHandler(streamHandler)
+    loggingHandler.setFormatter(formatter)
+    awsIoTLogger.addHandler(loggingHandler)
     gdmLogger = logging.getLogger(__name__)
     gdmLogger.setLevel(logging.DEBUG)
-    gdmLogger.addHandler(streamHandler)
+    gdmLogger.addHandler(loggingHandler)
     return gdmLogger
 
 def parseArgs():
