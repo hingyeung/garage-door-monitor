@@ -9,7 +9,6 @@ import json
 from logging.handlers import RotatingFileHandler
 
 DOOR_PIN = 24
-TOPIC = "DoorMonitor/GarageDoorMonitor"
 
 def setupLogger():
     awsIoTLogger = logging.getLogger("AWSIoTPythonSDK.core")
@@ -63,7 +62,7 @@ def setupDoorSensor():
     io.setmode(io.BCM)
     io.setup(DOOR_PIN, io.IN, pull_up_down=io.PUD_UP)
 
-def getserial():
+def getSerial():
     # Extract serial from cpuinfo file
     cpuserial = "0000000000000000"
     try:
@@ -77,6 +76,9 @@ def getserial():
 
     return cpuserial
 
+def getClientId():
+    return 'GarageDoorMonitor-' + getSerial()
+
 # parse command-line args
 (host, port, rootCAPath, certificatePath, privateKeyPath) = parseArgs()
 
@@ -84,7 +86,8 @@ def getserial():
 myLogger = setupLogger()
 
 # create AWS IoT MQTT client
-clientId = getserial()
+clientId = getClientId()
+topic = "DoorMonitor/" + clientId
 awsIoTMQTTClient = createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId)
 
 setupDoorSensor()
@@ -97,5 +100,5 @@ while True:
         message['status'] = 1
         myLogger.info("SWITCH CLOSE")
 
-    awsIoTMQTTClient.publish(TOPIC, json.dumps(message), 0)
+    awsIoTMQTTClient.publish(topic, json.dumps(message), 0)
     time.sleep(60)
