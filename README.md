@@ -12,6 +12,9 @@
 1. To remove virtualenv for this project  
 `rmvirtualenv garage-door-monitor`
 
+# Create AWS Stack
+`aws cloudformation create-stack --stack-name ${stack_name} --template-body file://./deployer/garage_door_monitor.yaml --parameters ParameterKey=ClientId,ParameterValue=${raspberrypi_serial_no} --capabilities CAPABILITY_IAM`
+
 # Setup on Raspberry Pi
 1. Install Docker  
 `> curl -sSL https://get.docker.com | sh`  
@@ -19,3 +22,16 @@
 `> sudo systemctl start docker`  
 `> sudo usermod -aG docker pi`  
 `> docker --version` 
+
+1. Install bootstrap.sh  
+`> cd ${HOME}`  
+`> wget https://raw.githubusercontent.com/hingyeung/garage-door-monitor/master/deployer/bootstrap.sh`
+
+1. Install systemd script  
+`> cd /etc/systemd/system`  
+`> wget https://raw.githubusercontent.com/hingyeung/garage-door-monitor/master/deployer/garage-door-monitor.service`  
+
+1. Modify `garage-door-monitor.service` to replace placeholders: `<IoT_endpoint>`, `<AWS_root_cert_file>`, `<IoT_cert_file>`, `<IoT_cert_private_key_file>` and `<certs_dir>`.
+
+1. Start the Garage Door Monitor service  
+`> sudo systemctl start garage-door-monitor.service` 
