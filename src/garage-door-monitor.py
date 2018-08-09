@@ -9,6 +9,7 @@ import json
 from logging.handlers import RotatingFileHandler
 
 DOOR_PIN = 24
+TOPIC = "DoorMonitor/GarageDoorMonitor"
 
 def setupLogger():
     awsIoTLogger = logging.getLogger("AWSIoTPythonSDK.core")
@@ -35,8 +36,6 @@ def parseArgs():
                         help="Certificate file path")
     parser.add_argument("-k", "--key", action="store", required=True, dest="privateKeyPath",
                         help="Private key file path")
-    parser.add_argument("-t", "--topic", action="store", dest="topic", default="home/garage/garageDoorSensor",
-                        help="Targeted topic")
 
     args = parser.parse_args()
     host = args.host
@@ -44,8 +43,7 @@ def parseArgs():
     rootCAPath = args.rootCAPath
     certificatePath = args.certificatePath
     privateKeyPath = args.privateKeyPath
-    topic = args.topic
-    return (host, port, rootCAPath, certificatePath, privateKeyPath, topic)
+    return (host, port, rootCAPath, certificatePath, privateKeyPath)
 
 def createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId):
     # Init AWSIoTMQTTClient
@@ -80,7 +78,7 @@ def getserial():
     return cpuserial
 
 # parse command-line args
-(host, port, rootCAPath, certificatePath, privateKeyPath, topic) = parseArgs()
+(host, port, rootCAPath, certificatePath, privateKeyPath) = parseArgs()
 
 # Configure logging
 myLogger = setupLogger()
@@ -99,5 +97,5 @@ while True:
         message['status'] = 1
         myLogger.info("SWITCH CLOSE")
 
-    awsIoTMQTTClient.publish(topic, json.dumps(message), 0)
+    awsIoTMQTTClient.publish(TOPIC, json.dumps(message), 0)
     time.sleep(60)
