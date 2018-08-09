@@ -35,12 +35,15 @@ Resources:
           Effect: "Allow"
           Action:
             - "iot:Connect"
-            - "iot:Subscribe"
-            - "iot:Publish"
-            - "iot:Receive"
-            - "cloudwatch:PutMetricData"
           Resource:
-            - "*"
+            # TODO put in the real placeholder
+            - "arn:aws:iot:us-east-1:${accountId}:client/${client.id.from.input}"
+        -
+          Effect: "Allow"
+          Action:
+          - "iot:Publish"
+          Resource:
+          - "arn:aws:iot:us-east-1:123456789012:topic/${iot:Connection.Thing.ThingTypeName}/${iot:Connection.Thing.ThingName}"
 
   GarageDoorMonitorOpenRule:
     Type: AWS::IoT::TopicRule

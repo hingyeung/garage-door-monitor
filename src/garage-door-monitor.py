@@ -68,6 +68,20 @@ def setupDoorSensor():
     io.setmode(io.BCM)
     io.setup(DOOR_PIN, io.IN, pull_up_down=io.PUD_UP)
 
+def getserial():
+    # Extract serial from cpuinfo file
+    cpuserial = "0000000000000000"
+    try:
+        f = open('/proc/cpuinfo','r')
+        for line in f:
+            if line[0:6]=='Serial':
+                cpuserial = line[10:26]
+        f.close()
+    except:
+        cpuserial = "ERROR000000000"
+
+    return cpuserial
+
 # parse command-line args
 (host, port, rootCAPath, certificatePath, privateKeyPath, clientId, topic) = parseArgs()
 
