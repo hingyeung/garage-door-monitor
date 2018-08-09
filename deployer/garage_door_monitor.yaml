@@ -1,4 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  ClientId:
+    Type: String
+    Description: Client ID for the garage door monitor
 Resources:
   GarageDoorMonitorRole:
     Type: AWS::IAM::Role
@@ -36,14 +40,15 @@ Resources:
           Action:
             - "iot:Connect"
           Resource:
-            # TODO put in the real placeholder
-            - "arn:aws:iot:us-east-1:${accountId}:client/${client.id.from.input}"
+            - !Sub
+              - "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:client/${ClientId}"
+              - { ClientId: !Ref ClientId }
         -
           Effect: "Allow"
           Action:
           - "iot:Publish"
           Resource:
-          - "arn:aws:iot:us-east-1:123456789012:topic/${iot:Connection.Thing.ThingTypeName}/${iot:Connection.Thing.ThingName}"
+          - !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/DoorMonitor/GarageDoorMonitor"
 
   GarageDoorMonitorOpenRule:
     Type: AWS::IoT::TopicRule
@@ -51,7 +56,7 @@ Resources:
       TopicRulePayload:
         Description: 'Garage door monitor reports magnetic reed switch is OPEN (magnetic field not present)'
         Sql: >-
-          SELECT status FROM 'home/garage/garageDoorSensor' WHERE status = 0
+          SELECT status FROM 'DoorMonitor/GarageDoorMonitor' WHERE status = 0
         RuleDisabled: 'false'
         Actions:
           -
@@ -71,7 +76,7 @@ Resources:
       TopicRulePayload:
         Description: 'Garage door monitor reports magnetic reed switch is CLOSE (magnetic field present)'
         Sql: >-
-          SELECT status FROM 'home/garage/garageDoorSensor' WHERE status = 1
+          SELECT status FROM 'DoorMonitor/GarageDoorMonitor' WHERE status = 1
         RuleDisabled: 'false'
         Actions:
           -

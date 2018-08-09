@@ -35,8 +35,6 @@ def parseArgs():
                         help="Certificate file path")
     parser.add_argument("-k", "--key", action="store", required=True, dest="privateKeyPath",
                         help="Private key file path")
-    parser.add_argument("-id", "--clientId", action="store", dest="clientId", default="garageDoorMonitor",
-                        help="Targeted client id")
     parser.add_argument("-t", "--topic", action="store", dest="topic", default="home/garage/garageDoorSensor",
                         help="Targeted topic")
 
@@ -46,9 +44,8 @@ def parseArgs():
     rootCAPath = args.rootCAPath
     certificatePath = args.certificatePath
     privateKeyPath = args.privateKeyPath
-    clientId = args.clientId
     topic = args.topic
-    return (host, port, rootCAPath, certificatePath, privateKeyPath, clientId, topic)
+    return (host, port, rootCAPath, certificatePath, privateKeyPath, topic)
 
 def createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId):
     # Init AWSIoTMQTTClient
@@ -83,17 +80,18 @@ def getserial():
     return cpuserial
 
 # parse command-line args
-(host, port, rootCAPath, certificatePath, privateKeyPath, clientId, topic) = parseArgs()
+(host, port, rootCAPath, certificatePath, privateKeyPath, topic) = parseArgs()
 
 # Configure logging
 myLogger = setupLogger()
 
 # create AWS IoT MQTT client
+clientId = getserial()
 awsIoTMQTTClient = createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId)
 
 setupDoorSensor()
 while True:
-    message = {}
+    message = { "clientId": clientId }
     if io.input(DOOR_PIN):
         message['status'] = 0
         myLogger.info("SWITCH OPEN")
