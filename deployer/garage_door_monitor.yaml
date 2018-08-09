@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Parameters:
-  ClientId:
-    Type: String
-    Description: Client ID for the garage door monitor
+#Parameters:
+#  ClientId:
+#    Type: String
+#    Description: Client ID for the garage door monitor
 Resources:
   GarageDoorMonitorRole:
     Type: AWS::IAM::Role
@@ -40,21 +40,36 @@ Resources:
           Action:
             - "iot:Connect"
           Resource:
-            - !Sub
-              - "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:client/${ClientId}"
-              - { ClientId: !Ref ClientId }
+            - !Join
+              - ''
+              - - 'arn:aws:iot:'
+                - !Ref 'AWS::Region'
+                - ':'
+                - !Ref 'AWS::AccountId'
+                - ':client/${iot:ClientId}'
+#          Condition:
+#            Bool:
+#              iot:Connection.Thing.IsAttached: "true"
         -
           Effect: "Allow"
           Action:
-          - "iot:Publish"
+            - "iot:Publish"
           Resource:
-          - !Sub "arn:aws:iot:${AWS::Region}:${AWS::AccountId}:topic/DoorMonitor/GarageDoorMonitor"
+            - !Join
+              - ''
+              - - 'arn:aws:iot:'
+                - !Ref 'AWS::Region'
+                - ':'
+                - !Ref 'AWS::AccountId'
+                - ':topic/'
+                - '${iot:Connection.Thing.ThingTypeName}/${iot:Connection.Thing.ThingName}'
 
   GarageDoorMonitorOpenRule:
     Type: AWS::IoT::TopicRule
     Properties:
       TopicRulePayload:
         Description: 'Garage door monitor reports magnetic reed switch is OPEN (magnetic field not present)'
+        # TODO need to replace "GarageDoorMonitor" with thing name. How?
         Sql: >-
           SELECT status FROM 'DoorMonitor/GarageDoorMonitor' WHERE status = 0
         RuleDisabled: 'false'
