@@ -13,10 +13,10 @@
 `rmvirtualenv garage-door-monitor`
 
 # Create AWS Stack
-`aws cloudformation create-stack --stack-name ${stack_name} --template-body file://./deployer/garage_door_monitor.yaml --capabilities CAPABILITY_IAM`  
+`aws cloudformation create-stack --stack-name ${stack_name} --template-body file://./deployer/garage_door_monitor.yaml --capabilities CAPABILITY_IAM`
 
-# Delete AWS stack
-`python deployer/delete_stack.py --stack-name ${stack_name}`  
+# Create an IoT Thing for Garage Door Monitor (ensure it belongs to DoorMonitor Thing Type)
+`python deployer/create_door_,monitor_iot_thing.py --name ${door_monitor_thing_name}`  
 
 # Setup on Raspberry Pi
 1. Install Docker  
@@ -37,4 +37,7 @@
 1. Modify `garage-door-monitor.service` to replace placeholders: `<IoT_endpoint>`, `<AWS_root_cert_file>`, `<IoT_cert_file>`, `<IoT_cert_private_key_file>` and `<certs_dir>`.
 
 1. Start the Garage Door Monitor service  
-`> sudo systemctl start garage-door-monitor.service` 
+`> sudo systemctl start garage-door-monitor.service`  
+
+# Delete AWS stack
+`python deployer/delete_stack.py --stack-name ${stack_name}`  
