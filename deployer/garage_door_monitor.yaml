@@ -47,9 +47,9 @@ Resources:
                 - ':'
                 - !Ref 'AWS::AccountId'
                 - ':client/${iot:ClientId}'
-#          Condition:
-#            Bool:
-#              iot:Connection.Thing.IsAttached: "true"
+          Condition:
+            Bool:
+              iot:Connection.Thing.IsAttached: "true"
         -
           Effect: "Allow"
           Action:
@@ -69,9 +69,10 @@ Resources:
     Properties:
       TopicRulePayload:
         Description: 'Garage door monitor reports magnetic reed switch is OPEN (magnetic field not present)'
-        # TODO need to replace "GarageDoorMonitor" with thing name. How?
-        Sql: >-
-          SELECT status FROM 'DoorMonitor/GarageDoorMonitor' WHERE status = 0
+        # TODO if I had to handle more than one Garage Door Monitor, I would hook this up to a Lambda function,
+        # which distribute the events to individual Garage Door Monitor CloudWatch metric.
+        # For now, events from any GDM will go to the same CW metric.
+        Sql: "SELECT status FROM 'DoorMonitor/#' WHERE status = 0"
         RuleDisabled: 'false'
         Actions:
           -
@@ -90,8 +91,7 @@ Resources:
     Properties:
       TopicRulePayload:
         Description: 'Garage door monitor reports magnetic reed switch is CLOSE (magnetic field present)'
-        Sql: >-
-          SELECT status FROM 'DoorMonitor/GarageDoorMonitor' WHERE status = 1
+        Sql: "SELECT status FROM 'DoorMonitor/#' WHERE status = 1"
         RuleDisabled: 'false'
         Actions:
           -
@@ -125,3 +125,6 @@ Outputs:
   GarageDoorMonitorCloseRule:
     Description: 'Rule triggered when garage door monitor reports magnetic reed switch is CLOSE'
     Value: !Ref GarageDoorMonitorCloseRule
+  GarageDoorMonitorIoTPolicy:
+    Description: 'IoT policy for Garage Door Monitor'
+    Value: !Ref GarageDoorMonitorIoTPolicy
