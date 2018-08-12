@@ -44,6 +44,7 @@ def parseArgs():
     rootCAPath = args.rootCAPath
     certificatePath = args.certificatePath
     privateKeyPath = args.privateKeyPath
+    clientId = args.clientId
     return (host, port, rootCAPath, certificatePath, privateKeyPath, clientId)
 
 def createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId):
