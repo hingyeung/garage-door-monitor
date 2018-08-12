@@ -13,7 +13,10 @@
 `rmvirtualenv garage-door-monitor`
 
 # Create AWS Stack
-`aws cloudformation create-stack --stack-name ${stack_name} --template-body file://./deployer/garage_door_monitor.yaml --parameters ParameterKey=ClientId,ParameterValue=${raspberrypi_serial_no} --capabilities CAPABILITY_IAM`
+`aws cloudformation create-stack --stack-name ${stack_name} --template-body file://./deployer/garage_door_monitor.yaml --capabilities CAPABILITY_IAM`  
+
+# Delete AWS stack
+`python deployer/delete_stack.py --stack-name policy-deletion-test`  
 
 # Setup on Raspberry Pi
 1. Install Docker  
