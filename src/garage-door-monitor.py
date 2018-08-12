@@ -25,6 +25,8 @@ def setupLogger():
 def parseArgs():
     # Read in command-line parameters
     parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--interval", action="store", dest="interval", default=150,
+                        help="Time between monitoring data is sent")
     parser.add_argument("-e", "--endpoint", action="store", required=True, dest="host",
                         help="Your AWS IoT custom endpoint")
     parser.add_argument("-p", "--port", action="store", dest="port", type=int, default=8883,
@@ -45,7 +47,8 @@ def parseArgs():
     certificatePath = args.certificatePath
     privateKeyPath = args.privateKeyPath
     clientId = args.clientId
-    return (host, port, rootCAPath, certificatePath, privateKeyPath, clientId)
+    interval = args.interval
+    return (host, port, rootCAPath, certificatePath, privateKeyPath, clientId, interval)
 
 def createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId):
     # Init AWSIoTMQTTClient
@@ -83,7 +86,7 @@ def getClientId():
     return 'GarageDoorMonitor-' + getSerial()
 
 # parse command-line args
-(host, port, rootCAPath, certificatePath, privateKeyPath, clientId) = parseArgs()
+(host, port, rootCAPath, certificatePath, privateKeyPath, clientId, interval) = parseArgs()
 
 # Configure logging
 myLogger = setupLogger()
@@ -103,4 +106,4 @@ while True:
         myLogger.info("SWITCH CLOSE")
 
     awsIoTMQTTClient.publish(topic, json.dumps(message), 0)
-    time.sleep(60)
+    time.sleep(interval)
