@@ -16,7 +16,7 @@
 `aws cloudformation create-stack --stack-name ${stack_name} --template-body file://./deployer/garage_door_monitor.yaml --capabilities CAPABILITY_IAM`  
 
 # Delete AWS stack
-`python deployer/delete_stack.py --stack-name policy-deletion-test`  
+`python deployer/delete_stack.py --stack-name ${stack_name}`  
 
 # Setup on Raspberry Pi
 1. Install Docker  
