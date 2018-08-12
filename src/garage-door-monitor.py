@@ -35,6 +35,8 @@ def parseArgs():
                         help="Certificate file path")
     parser.add_argument("-k", "--key", action="store", required=True, dest="privateKeyPath",
                         help="Private key file path")
+    parser.add_argument("-id", "--clientId", action="store", dest="clientId", default=getClientId(),
+                        help="Targeted client id")
 
     args = parser.parse_args()
     host = args.host
@@ -42,7 +44,7 @@ def parseArgs():
     rootCAPath = args.rootCAPath
     certificatePath = args.certificatePath
     privateKeyPath = args.privateKeyPath
-    return (host, port, rootCAPath, certificatePath, privateKeyPath)
+    return (host, port, rootCAPath, certificatePath, privateKeyPath, clientId)
 
 def createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId):
     # Init AWSIoTMQTTClient
@@ -80,13 +82,12 @@ def getClientId():
     return 'GarageDoorMonitor-' + getSerial()
 
 # parse command-line args
-(host, port, rootCAPath, certificatePath, privateKeyPath) = parseArgs()
+(host, port, rootCAPath, certificatePath, privateKeyPath, clientId) = parseArgs()
 
 # Configure logging
 myLogger = setupLogger()
 
 # create AWS IoT MQTT client
-clientId = getClientId()
 topic = "DoorMonitor/" + clientId
 awsIoTMQTTClient = createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId)
 
