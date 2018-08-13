@@ -1,4 +1,18 @@
- # Development with `virtualenv`
+# Cloud-enabled Garage Door Monitor
+## Problem
+I always forget to close my garage door and leave it opened overnight, exposing the contents of my garage such as my
+prized wine collection to the bad guys on the street.
+## Solution
+This problem calls for a fancy solution and that is why I've built this Cloud-enabled Garage Door Monitor
+(you can actually use it on any door, or windows, or anything that opens and closes).
+
+# What I used
+1. [Magnetic contact switch (door sensor)](https://www.adafruit.com/product/375)
+1. [Raspberry Pi Zero W](https://www.raspberrypi.org/products/raspberry-pi-zero-w/)
+1. [Case for the Raspberry Pi Zero W](https://www.raspberrypi.org/products/raspberry-pi-zero-case/)
+1. [Raspberry Pi Offical Power Supply](https://www.raspberrypi.org/products/raspberry-pi-universal-power-supply/)
+
+# Development with `virtualenv`
 1. Make python virtualenv for this project
     1. `mkvirtualenv garage-door-monitor`
     1. `workon garage-door-monitor`
@@ -40,4 +54,6 @@
 `> sudo systemctl start garage-door-monitor.service`  
 
 # Delete AWS stack
-`python deployer/delete_stack.py --stack-name ${stack_name}`  
+This script makes sure all previous versions of the Iot policy created by the specified stack are
+deleted first, then detach the IoT policy from all IoT certificates, before deleting the stack.  
+`> python deployer/delete_stack.py --stack-name ${stack_name}`  
