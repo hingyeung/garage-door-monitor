@@ -6,6 +6,8 @@ prized wine collection to the bad guys on the street.
 This problem calls for a fancy solution and that is why I've built this Cloud-enabled Garage Door Monitor
 (you can actually use it on any door, or windows, or anything that opens and closes).
 
+![Alt text](img/architecture.png?raw=true "Architecture Overview")
+
 # What I used
 1. [Magnetic contact switch (door sensor)](https://www.adafruit.com/product/375)
 1. [Raspberry Pi Zero W](https://www.raspberrypi.org/products/raspberry-pi-zero-w/)
