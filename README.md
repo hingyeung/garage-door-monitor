@@ -14,22 +14,28 @@ This problem calls for a fancy solution and that is why I've built this Cloud-en
 1. [Case for the Raspberry Pi Zero W](https://www.raspberrypi.org/products/raspberry-pi-zero-case/)
 1. [Raspberry Pi Offical Power Supply](https://www.raspberrypi.org/products/raspberry-pi-universal-power-supply/)
 
-# Development with `virtualenv`
+# Development with `virtualenvwrapper`
 1. Make python virtualenv for this project
-    1. `mkvirtualenv garage-door-monitor`
-    1. `workon garage-door-monitor`
-    1. `pip install -r requirements.txt`
+    1. `> mkvirtualenv garage-door-monitor` (if garage-door-monitor environment doesn't exist)
+    1. `> workon garage-door-monitor` (if garage-door-monitor environment already exists)
+    1. `> pip install -r requirements.txt`
     
 1. Run the script  
-    `python src/garage-door-monitor.py`
+`> python src/garage-door-monitor.py`
     
 1. When finished  
-`deactivate`
+`>deactivate`
 1. To remove virtualenv for this project  
 `rmvirtualenv garage-door-monitor`
 
+# Development with `SAM local`
+## Starting `localstack`
+`> scripts/start_localstack.sh`
+## Invoking Lambda function
+`sam local invoke AlarmSNSToIFTTTNotification  -e test/data/sns_event.json  --template deployer/garage_door_monitor.yaml --env-vars ${env_vars_json}`
+
 # Create AWS Stack
-`aws cloudformation create-stack --stack-name ${stack_name} --template-body file://./deployer/garage_door_monitor.yaml --capabilities CAPABILITY_IAM`
+`> aws cloudformation create-stack --stack-name ${stack_name} --template-body file://./deployer/garage_door_monitor.yaml --capabilities CAPABILITY_IAM`
 
 # Create an IoT Thing for Garage Door Monitor (ensure it belongs to DoorMonitor Thing Type)
 `python deployer/create_door_,monitor_iot_thing.py --name ${door_monitor_thing_name}`  
