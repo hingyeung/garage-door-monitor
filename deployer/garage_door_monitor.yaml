@@ -109,11 +109,11 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmActions:
-        - !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-left-open"
+        - !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-alarm-topic"
       InsufficientDataActions:
-        - !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-left-open"
+        - !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-alarm-topic"
       OKActions:
-        - !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-left-open"
+        - !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-alarm-topic"
       ActionsEnabled: true
       AlarmDescription: 'Garage door has been opened for 10 mins'
       MetricName: 'GarageDoorStatus'
