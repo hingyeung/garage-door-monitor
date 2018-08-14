@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
-#Parameters:
-#  ClientId:
-#    Type: String
-#    Description: Client ID for the garage door monitor
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  IFTTTKey:
+    Type: String
 Resources:
   GarageDoorMonitorRole:
     Type: AWS::IAM::Role
@@ -124,6 +124,24 @@ Resources:
       Threshold: 1.0
       ComparisonOperator: 'GreaterThanOrEqualToThreshold'
       TreatMissingData: 'missing'
+  AlarmSNSToIFTTTNotification:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: alarm-sns-to-ifttt-notification.handler
+      Runtime: python2.7
+      # relative to where this template file is
+      CodeUri: ../src
+      MemorySize: 128
+      Timeout: 3
+      Environment:
+        Variables:
+          IFTTT_KEY: !Ref IFTTTKey
+      Events:
+        SNS1:
+          Type: SNS
+          Properties:
+            Topic: !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-left-open"
+
 Outputs:
   GarageDoorMonitorOpenRule:
     Description: 'Rule triggered when garage door monitor reports magnetic reed switch is OPEN'
