@@ -1,8 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Parameters:
-  IFTTTKey:
-    Type: String
 Resources:
   GarageDoorMonitorRole:
     Type: AWS::IAM::Role
@@ -124,18 +121,44 @@ Resources:
       Threshold: 1.0
       ComparisonOperator: 'GreaterThanOrEqualToThreshold'
       TreatMissingData: 'missing'
+
+  ParameterStoreFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - 'lambda.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        -
+          PolicyName: 'GarageDoorAlarmLambdaPolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              -
+                Effect: Allow
+                Action:
+                  - 'ssm:GetParameter*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/garage-door-monitor/*'
+
   AlarmSNSToIFTTTNotification:
     Type: AWS::Serverless::Function
     Properties:
+      Role: !GetAtt ParameterStoreFunctionRole.Arn
       Handler: alarm-sns-to-ifttt-notification.handler
       Runtime: python2.7
       # relative to where this template file is
       CodeUri: ../src
       MemorySize: 128
       Timeout: 3
-      Environment:
-        Variables:
-          IFTTT_KEY: !Ref IFTTTKey
       Events:
         SNS1:
           Type: SNS
