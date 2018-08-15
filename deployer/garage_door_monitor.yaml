@@ -140,7 +140,7 @@ Resources:
         SNS1:
           Type: SNS
           Properties:
-            Topic: !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-left-open"
+            Topic: !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-alarm-topic"
 
 Outputs:
   GarageDoorMonitorOpenRule:
