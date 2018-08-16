@@ -1,5 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
+Description: "Garage Door Monitor powered by Raspberry Pi and AWS"
 Resources:
   GarageDoorMonitorRole:
     Type: AWS::IAM::Role
