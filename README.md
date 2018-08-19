@@ -18,7 +18,7 @@ This problem calls for a fancy solution and that is why I've built this Cloud-en
 1. Make python virtualenv for this project
     1. `> mkvirtualenv garage-door-monitor` (if garage-door-monitor environment doesn't exist)
     1. `> workon garage-door-monitor` (if garage-door-monitor environment already exists)
-    1. `> pip install -r requirements.txt`
+    1. `> pip install -r dev-requirements.txt`
     
 1. Run the script  
 `> python src/garage-door-monitor.py`
