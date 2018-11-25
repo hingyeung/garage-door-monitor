@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-# run this script run /etc/systemd/system/garage-door-monitor.service
+# run this script from /etc/systemd/system/garage-door-monitor.service
 
 ENDPOINT=$1
 AWS_ROOT_CERT=$2

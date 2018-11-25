@@ -24,7 +24,7 @@ This problem calls for a fancy solution and that is why I've built this Cloud-en
 `> python src/garage-door-monitor.py`
     
 1. When finished  
-`>deactivate`
+`> deactivate`
 1. To remove virtualenv for this project  
 `rmvirtualenv garage-door-monitor`
 
@@ -38,7 +38,7 @@ This problem calls for a fancy solution and that is why I've built this Cloud-en
 `> aws cloudformation create-stack --stack-name ${stack_name} --template-body file://./deployer/garage_door_monitor.yaml --capabilities CAPABILITY_IAM`
 
 # Create an IoT Thing for Garage Door Monitor (ensure it belongs to DoorMonitor Thing Type)
-`python deployer/create_door_,monitor_iot_thing.py --name ${door_monitor_thing_name}`  
+`> python deployer/create_door_,monitor_iot_thing.py --name ${door_monitor_thing_name}`  
 
 # Setup on Raspberry Pi
 1. Install Docker  
