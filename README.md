@@ -29,10 +29,13 @@ This problem calls for a fancy solution and that is why I've built this Cloud-en
 `rmvirtualenv garage-door-monitor`
 
 # Development with `SAM local`
+## Installing SAM local
+`> mkvirtualenv garage-door-monitor` or `workon garage-door-monitor`  
+`> pip install aws-sam-cli` (https://github.com/awslabs/aws-sam-cli#installation)  
 ## Starting `localstack`
 `> scripts/start_localstack.sh`
 ## Invoking Lambda function
-`sam local invoke AlarmSNSToIFTTTNotification  -e test/data/sns_event.json  --template deployer/garage_door_monitor.yaml --env-vars ${env_vars_json}`
+`> sam local invoke AlarmSNSToIFTTTNotification  -e test/data/sns_event.json  --template deployer/garage_door_monitor.yaml --env-vars ${env_vars_json}`
 
 # Create AWS Stack
 `> aws cloudformation create-stack --stack-name ${stack_name} --template-body file://./deployer/garage_door_monitor.yaml --capabilities CAPABILITY_IAM`
