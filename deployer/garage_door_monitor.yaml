@@ -159,7 +159,7 @@ Resources:
       # relative to where this template file is
       CodeUri: ../src
       MemorySize: 128
-      Timeout: 3
+      Timeout: 5
       Events:
         SNS1:
           Type: SNS
