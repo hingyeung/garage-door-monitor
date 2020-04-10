@@ -37,8 +37,8 @@ This problem calls for a fancy solution and that is why I've built this Cloud-en
 ## Invoking Lambda function
 `> sam local invoke AlarmSNSToIFTTTNotification  -e test/data/sns_event.json  --template deployer/garage_door_monitor.yaml --env-vars ${env_vars_json}`
 
-# Create AWS Stack
-`> aws cloudformation create-stack --stack-name ${stack_name} --template-body file://./deployer/garage_door_monitor.yaml --capabilities CAPABILITY_IAM`
+# Deploy Stack
+`> ./deployer/sam_package_upload.py -p <profile> --s3-bucket <artefact-bucket> --s3-prefix <artefact-prefix> --stack-name garage-door-monitor -d`
 
 # Create an IoT Thing for Garage Door Monitor (ensure it belongs to DoorMonitor Thing Type)
 `> python deployer/create_door_,monitor_iot_thing.py --name ${door_monitor_thing_name}`  

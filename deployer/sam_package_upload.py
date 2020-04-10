@@ -28,9 +28,10 @@ if deploy_mode and len(stackname) == 0:
     exit(-1)
 
 package_cmd = "sam package --template-file deployer/garage_door_monitor.yaml " \
+              "--profile {} " \
               "--s3-bucket {} " \
               "--s3-prefix {} " \
-              "--output-template-file out/garage_door_monitor_output.yaml".format(s3_bucket, s3_prefix)
+              "--output-template-file out/garage_door_monitor_output.yaml".format(profile, s3_bucket, s3_prefix)
 status = call(package_cmd, shell=True)
 if status != 0:
     print('SAM package failed')
@@ -38,8 +39,9 @@ if status != 0:
 
 if deploy_mode:
     deploy_cmd = "sam deploy --template-file out/garage_door_monitor_output.yaml " \
+                 "--profile {} " \
                  "--capabilities CAPABILITY_IAM " \
-                 "--stack-name {}".format(stackname)
+                 "--stack-name {}".format(profile, stackname)
     exit(call(deploy_cmd, shell=True))
 else:
     print('Skipping stack deployment')

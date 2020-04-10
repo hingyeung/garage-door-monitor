@@ -2,6 +2,39 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: "Garage Door Monitor powered by Raspberry Pi and AWS"
 Resources:
+  GarageDoorSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: garage-door-alarm-topic
+
+  GarageDoorSNSTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties: 
+      PolicyDocument:
+        Version: "2008-10-17"
+        Id: "garage door sns topic policy"
+        Statement:
+          - Sid: "allow owner account"
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - SNS:GetTopicAttributes
+              - SNS:SetTopicAttributes
+              - SNS:AddPermission
+              - SNS:RemovePermission
+              - SNS:DeleteTopic
+              - SNS:Subscribe
+              - SNS:ListSubscriptionsByTopic
+              - SNS:Publish
+              - SNS:Receive
+            Resource: !Ref GarageDoorSNSTopic
+            Condition:
+              StringEquals:
+                AWS:SourceOwner: !Ref AWS::AccountId
+      Topics:
+        - !Ref GarageDoorSNSTopic
+      
   GarageDoorMonitorRole:
     Type: AWS::IAM::Role
     Properties:
@@ -107,11 +140,11 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmActions:
-        - !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-alarm-topic"
+        - !Ref GarageDoorSNSTopic
       InsufficientDataActions:
-        - !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-alarm-topic"
+        - !Ref GarageDoorSNSTopic
       OKActions:
-        - !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-alarm-topic"
+        - !Ref GarageDoorSNSTopic
       ActionsEnabled: true
       AlarmDescription: 'Garage door has been opened for 10 mins'
       MetricName: 'GarageDoorStatus'
@@ -164,7 +197,21 @@ Resources:
         SNS1:
           Type: SNS
           Properties:
-            Topic: !Sub "arn:aws:sns:ap-southeast-2:${AWS::AccountId}:garage-door-alarm-topic"
+            Topic: !Ref GarageDoorSNSTopic
+
+  AlarmSNSToIFTTTNotificationFuncSNSSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: Lambda
+      Endpoint: !GetAtt AlarmSNSToIFTTTNotificationFunc.Arn
+      TopicArn: !Ref GarageDoorSNSTopic
+
+  AlarmSNSToIFTTTNotificationFuncInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref AlarmSNSToIFTTTNotificationFunc
+      Principal: sns.amazonaws.com
 
   AlarmSNSToIFTTTNotificationFuncLogGroup:
     Type: AWS::Logs::LogGroup
