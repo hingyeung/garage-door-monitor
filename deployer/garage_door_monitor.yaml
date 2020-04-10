@@ -14,24 +14,12 @@ Resources:
         Version: "2008-10-17"
         Id: "garage door sns topic policy"
         Statement:
-          - Sid: "allow owner account"
+          - Sid: "allows cloudwatch to publish event"
             Effect: Allow
             Principal:
-              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action:
-              - SNS:GetTopicAttributes
-              - SNS:SetTopicAttributes
-              - SNS:AddPermission
-              - SNS:RemovePermission
-              - SNS:DeleteTopic
-              - SNS:Subscribe
-              - SNS:ListSubscriptionsByTopic
-              - SNS:Publish
-              - SNS:Receive
+              Service: cloudwatch.amazonaws.com
+            Action: SNS:Publish
             Resource: !Ref GarageDoorSNSTopic
-            Condition:
-              StringEquals:
-                AWS:SourceOwner: !Ref AWS::AccountId
       Topics:
         - !Ref GarageDoorSNSTopic
       
@@ -156,6 +144,103 @@ Resources:
       ComparisonOperator: 'GreaterThanOrEqualToThreshold'
       TreatMissingData: 'missing'
 
+  AlarmSNSToSlackNotificationFuncRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - 'lambda.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        -
+          PolicyName: 'GarageDoorAlarmLambdaPolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              -
+                Effect: Allow
+                Action:
+                  - 'ssm:GetParameter*'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/garage-door-monitor/*'
+
+  AlarmSNSToSlackNotificationFuncLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AlarmSNSToSlackNotificationFunc}
+      RetentionInDays: 7
+
+      AlarmSNSToIFTTTNotificationFuncRole:
+        Type: AWS::IAM::Role
+        Properties:
+          AssumeRolePolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              -
+                Effect: Allow
+                Principal:
+                  Service:
+                    - 'lambda.amazonaws.com'
+                Action:
+                  - 'sts:AssumeRole'
+          ManagedPolicyArns:
+            - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+          Policies:
+            -
+              PolicyName: 'GarageDoorAlarmLambdaPolicy'
+              PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                  -
+                    Effect: Allow
+                    Action:
+                      - 'ssm:GetParameter*'
+                    Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/garage-door-monitor/*'
+
+  AlarmSNSToSlackNotificationFunc:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt AlarmSNSToSlackNotificationFuncRole.Arn
+      Handler: alarm-sns-to-slack-notification.handler
+      Runtime: python2.7
+      # relative to where this template file is
+      CodeUri: ../src
+      MemorySize: 128
+      Timeout: 5
+      Events:
+        SNS1:
+          Type: SNS
+          Properties:
+            Topic: !Ref GarageDoorSNSTopic
+
+  AlarmSNSToSlackNotificationFuncSNSSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: Lambda
+      Endpoint: !GetAtt AlarmSNSToSlackNotificationFunc.Arn
+      TopicArn: !Ref GarageDoorSNSTopic
+
+  AlarmSNSToSlackNotificationFuncInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref AlarmSNSToSlackNotificationFunc
+      Principal: sns.amazonaws.com
+      SourceArn: !Ref GarageDoorSNSTopic
+
+  AlarmSNSToSlackNotificationFuncLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AlarmSNSToSlackNotificationFunc}
+      RetentionInDays: 7
+
   AlarmSNSToIFTTTNotificationFuncRole:
     Type: AWS::IAM::Role
     Properties:
@@ -212,6 +297,7 @@ Resources:
       Action: 'lambda:InvokeFunction'
       FunctionName: !Ref AlarmSNSToIFTTTNotificationFunc
       Principal: sns.amazonaws.com
+      SourceArn: !Ref GarageDoorSNSTopic
 
   AlarmSNSToIFTTTNotificationFuncLogGroup:
     Type: AWS::Logs::LogGroup

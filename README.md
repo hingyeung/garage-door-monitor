@@ -68,3 +68,6 @@ This problem calls for a fancy solution and that is why I've built this Cloud-en
 This script makes sure all previous versions of the Iot policy created by the specified stack are
 deleted first, then detach the IoT policy from all IoT certificates, before deleting the stack.  
 `> python deployer/delete_stack.py --stack-name ${stack_name}`  
+
+# Attributions
+Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/).
