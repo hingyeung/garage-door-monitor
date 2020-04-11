@@ -11,11 +11,11 @@ logger.setLevel(logging.DEBUG)
 logger.debug('Loading function')
 
 def messageFromAlarmState(alarmState):
-    UNKNOWN_STATE_MSG = { "msg": "The garage door monitor is talking gibberish and I don't understand it. :lightning:", "image": "" }
+    UNKNOWN_STATE_MSG = { "msg": "The garage door monitor is talking gibberish and I don't understand it. :lightning:", "image": "https://raw.githubusercontent.com/hingyeung/garage-door-monitor/master/img/robot.png?raw=true" }
     MSG = {
         "OK": { "msg": "The garage door has been closed. Good job.\n\nHave a :cookie:!", "image": "https://raw.githubusercontent.com/hingyeung/garage-door-monitor/master/img/police.png?raw=true" },
         "ALARM": { "msg": "Looks like your garage door has been opened for more than 10 minutes. :rotating_light:", "image": "https://raw.githubusercontent.com/hingyeung/garage-door-monitor/master/img/police.png?raw=true" },
-        "INSUFFICIENT_DATA": { "msg": "We haven't heard from the garage door monitor for more than 10 minutes. :hourglass_flowing_sand:", "image": "https://raw.githubusercontent.com/hingyeung/garage-door-monitor/master/img/disconnect.png?raw=true" }
+        "INSUFFICIENT_DATA": { "msg": "We haven't heard from the garage door monitor for more than 10 minutes. :hourglass_flowing_sand:", "image": "https://raw.githubusercontent.com/hingyeung/garage-door-monitor/master/img/wire.png?raw=true" }
     }
     return MSG.get(alarmState, UNKNOWN_STATE_MSG)
 
