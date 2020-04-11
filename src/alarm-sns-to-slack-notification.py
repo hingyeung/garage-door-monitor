@@ -24,18 +24,6 @@ def getWebhook():
     resp = ssm_client.get_parameter(Name=APP_PATH + SLACK_WEBHOOK_PATH, WithDecryption=True)
     return resp["Parameter"]["Value"]
 
-def buildSuccessResponse():
-    return {'status': 200}
-
-def buildErrorResponse(error):
-    return {
-            'status': 500,
-            'error': {
-                'type': type(error).__name__,
-                'description': str(error),
-            },
-        }
-
 def handler(event, context):
     logger.info("Event: " + str(event))
 
@@ -63,18 +51,16 @@ def handler(event, context):
 
     req = Request(webhookUrl, json.dumps(slackMessage))
 
-    lambdaResponse = buildSuccessResponse()
     try:
         response = urlopen(req)
         response.read()
         logger.info("Message posted")
     except HTTPError as e:
         logger.error("Request failed: %d %s", e.code, e.reason)
-        lambdaResponse = buildErrorResponse(e)
+        raise
     except URLError as e:
         logger.error("Server connection failed: %s", e.reason)
-        lambdaResponse = buildErrorResponse(e)
+        raise
     except Exception as e:
         logger.error("Exception: %s", e)
-        lambdaResponse = buildErrorResponse(e)
-    return lambdaResponse
+        raise
