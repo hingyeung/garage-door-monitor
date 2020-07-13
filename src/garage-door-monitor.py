@@ -7,6 +7,7 @@ import logging
 import argparse
 import json
 from logging.handlers import RotatingFileHandler
+import paho.mqtt.client as mqtt
 
 DOOR_PIN = 24
 
@@ -39,6 +40,14 @@ def parseArgs():
                         help="Private key file path")
     parser.add_argument("-id", "--clientId", action="store", dest="clientId", default=getClientId(),
                         help="Targeted client id")
+    parser.add_argument("--enable-additional-mqtt-client", action="store_true", dest="enableAdditionalMQTTClient",
+                        help="Enable additional MQTT client")
+    parser.add_argument("--additional-mqtt-server-host", action="store", dest="additionalMQTTServerHost",
+                        help="Additional MQTT Server Host", default="localhost")
+    parser.add_argument("--additional-mqtt-server-port", action="store", dest="additionalMQTTServerPort",
+                        help="Additional MQTT Server Port", default=1883)
+    parser.add_argument("--additional-mqtt-topic-prefix", action="store", dest="additionalMQTTServerTopicPrefix",
+                        help="Additional MQTT topic prefix", default="sensor/DoorMonitor/")
 
     args = parser.parse_args()
     host = args.host
@@ -48,7 +57,12 @@ def parseArgs():
     privateKeyPath = args.privateKeyPath
     clientId = args.clientId
     interval = args.interval
-    return (host, port, rootCAPath, certificatePath, privateKeyPath, clientId, interval)
+    return (
+        host, port, rootCAPath, certificatePath,
+        privateKeyPath, clientId, interval, args.enableAdditionalMQTTClient,
+        args.additionalMQTTServerHost, args.additionalMQTTServerPort,
+        args.additionalMQTTServerTopicPrefix
+    )
 
 def createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId):
     # Init AWSIoTMQTTClient
@@ -63,6 +77,10 @@ def createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPa
     awsIoTMQTTClient.connect()
     return awsIoTMQTTClient
 
+def createAdditionalMQTTClient(host, port):
+    client = mqtt.Client(getClientId())
+    client.connect(host, port=port)
+    return client
 
 def setupDoorSensor():
     io.setmode(io.BCM)
@@ -86,7 +104,19 @@ def getClientId():
     return 'GarageDoorMonitor-' + getSerial()
 
 # parse command-line args
-(host, port, rootCAPath, certificatePath, privateKeyPath, clientId, interval) = parseArgs()
+(
+    host,
+    port,
+    rootCAPath,
+    certificatePath,
+    privateKeyPath,
+    clientId,
+    interval,
+    enableAdditionalMQTTClient,
+    additionalMQTTServerHost,
+    additionalMQTTServerPort,
+    additionalMQTTServerTopicPrefix
+) = parseArgs()
 
 # Configure logging
 myLogger = setupLogger()
@@ -94,6 +124,9 @@ myLogger = setupLogger()
 # create AWS IoT MQTT client
 topic = "DoorMonitor/" + clientId
 awsIoTMQTTClient = createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId)
+additionalMQTTClient = createAdditionalMQTTClient(
+    additionalMQTTServerHost, additionalMQTTServerPort
+) if enableAdditionalMQTTClient else None
 
 setupDoorSensor()
 while True:
@@ -106,4 +139,6 @@ while True:
         myLogger.info("SWITCH CLOSE")
 
     awsIoTMQTTClient.publish(topic, json.dumps(message), 0)
+    if additionalMQTTClient:
+        additionalMQTTClient.publish(additionalMQTTServerTopicPrefix + clientId, json.dumps(message))
     time.sleep(interval)

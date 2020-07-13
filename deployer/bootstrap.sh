@@ -7,6 +7,9 @@ AWS_ROOT_CERT=$2
 DEVICE_CERT=$3
 DEVICE_PRIVATE_KEY=$4
 CERTS_DIR=$5
+ADDITIONAL_MQTT_SERVER_HOST=$6
+ADDITIONAL_MQTT_SERVER_PORT=$7
+ADDITIONAL_MQTT_TOPIC_PREFIX=$8
 
 PROJECT_DIR=garage-door-monitor
 DOCKER_IMAGE=garage-door-monitor
@@ -34,4 +37,8 @@ docker run --rm --cap-add SYS_RAWIO --device /dev/mem \
   -e ${ENDPOINT} \
   -r /certs/${AWS_ROOT_CERT} \
   -c /certs/${DEVICE_CERT} \
-  -k /certs/${DEVICE_PRIVATE_KEY}
+  -k /certs/${DEVICE_PRIVATE_KEY} \
+  --enable-additional-mqtt-client \
+  --additional-mqtt-server-host ${ADDITIONAL_MQTT_SERVER_HOST} \
+  --additional-mqtt-server-port ${ADDITIONAL_MQTT_SERVER_PORT} \
+  --additional-mqtt-topic-prefix ${ADDITIONAL_MQTT_TOPIC_PREFIX}

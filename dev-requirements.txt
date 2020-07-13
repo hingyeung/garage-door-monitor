@@ -100,3 +100,4 @@ Werkzeug==0.14.1
 whichcraft==0.4.1
 wrapt==1.10.11
 xmltodict==0.10.2
+paho-mqtt==1.5.0
