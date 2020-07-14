@@ -54,12 +54,13 @@ This problem calls for a fancy solution and that is why I've built this Cloud-en
 1. Install bootstrap.sh  
 `> cd ${HOME}`  
 `> wget https://raw.githubusercontent.com/hingyeung/garage-door-monitor/master/deployer/bootstrap.sh`
+`> chmod +x bootstrap.sh`
 
 1. Install systemd script  
 `> cd /etc/systemd/system`  
 `> wget https://raw.githubusercontent.com/hingyeung/garage-door-monitor/master/deployer/garage-door-monitor.service`  
 
-1. Modify `garage-door-monitor.service` to replace placeholders: `<IoT_endpoint>`, `<AWS_root_cert_file>`, `<IoT_cert_file>`, `<IoT_cert_private_key_file>` and `<certs_dir>`.
+1. Modify `garage-door-monitor.service` to replace placeholders: `<IoT_endpoint>`, `<AWS_root_cert_file>`, `<IoT_cert_file>`, `<IoT_cert_private_key_file>`, `<certs_dir>` `additional_mqtt_server_host`, `additional_mqtt_server_port` and `additional_mqtt_topic_prefix`.
 
 1. Start the Garage Door Monitor service  
 `> sudo systemctl start garage-door-monitor.service`  

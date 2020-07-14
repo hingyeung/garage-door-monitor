@@ -124,9 +124,13 @@ myLogger = setupLogger()
 # create AWS IoT MQTT client
 topic = "DoorMonitor/" + clientId
 awsIoTMQTTClient = createAWSIoTMQTTClient(host, port, rootCAPath, certificatePath, privateKeyPath, clientId)
-additionalMQTTClient = createAdditionalMQTTClient(
-    additionalMQTTServerHost, additionalMQTTServerPort
-) if enableAdditionalMQTTClient else None
+if enableAdditionalMQTTClient:
+    additionalMQTTClient = createAdditionalMQTTClient(
+        additionalMQTTServerHost, additionalMQTTServerPort
+    )
+    additionalMQTTClient.loop_start()
+else:
+    additionalMQTTClient = None
 
 setupDoorSensor()
 while True:

@@ -18,6 +18,9 @@ Requires=docker.service
 # <IoT_cert_file>: filename of the certificate used by the IoT thing
 # <IoT_cert_private_key_file>: filename of the private key of the certificate
 # <certs_dir>: full path to directory that contains the AWS root certificates, IoT certificate and its private key files.
+# <additional_mqtt_server_host> additional mqtt server host
+# <additional_mqtt_server_port> additional mqtt server port
+# <additional_mqtt_topic_prefix> additional mqtt server topic prefix
 # REPLACE THE PLACEHOLDERS BEFORE RUN.
 ExecStart=/home/pi/bootstrap.sh <IoT_endpoint> <AWS_root_cert_file> <IoT_cert_file> <IoT_cert_private_key_file> <certs_dir> <additional_mqtt_server_host> <additional_mqtt_server_port> <additional_mqtt_topic_prefix>
 # ensure the name of this file (%N) matches the container name
