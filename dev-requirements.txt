@@ -55,7 +55,7 @@ jsondiff==1.1.1
 jsonpath-rw==1.4.0
 jsonpickle==0.9.6
 jsonschema==2.6.0
-localstack==0.8.7
+localstack==0.12.11
 localstack-client==0.4
 localstack-ext==0.8.6
 MarkupSafe==1.0
