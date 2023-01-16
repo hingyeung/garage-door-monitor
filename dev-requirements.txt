@@ -75,7 +75,7 @@ pycparser==2.18
 pycryptodomex==3.4.9
 pyflakes==1.6.0
 pyminifier==2.1
-pyOpenSSL==17.0.0
+pyOpenSSL==17.5.0
 python-coveralls==2.7.0
 python-dateutil==2.7.3
 python-jose-ext==1.3.2.4
